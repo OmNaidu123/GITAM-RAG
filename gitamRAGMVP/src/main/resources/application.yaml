@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: gitamRAGMVP
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:5432/RAG
+    username: postgres
+    password: WASDkeys
+  ai:
+    openai:
+      api-key: ${AI_KEY}
+      chat:
+        options:
+          model: gpt-4
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: strict
