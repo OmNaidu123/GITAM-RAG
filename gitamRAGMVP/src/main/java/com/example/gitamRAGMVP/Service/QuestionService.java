@@ -7,6 +7,8 @@ import com.example.gitamRAGMVP.Models.wrappers.OptimizedHistory;
 import com.example.gitamRAGMVP.dao.ChatRepo;
 import com.example.gitamRAGMVP.dao.QuestionHistoryRepo;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
+
 @Service
 public class QuestionService {
 
@@ -34,7 +38,9 @@ public class QuestionService {
     private ChatRepo chatRepo;
 
     public QuestionService(ChatClient.Builder builder, VectorStore vectorStore) {
-        this.chatClient = builder.build();
+        this.chatClient = builder
+                .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
+                .build();
         this.vectorStore = vectorStore;
     }
 
@@ -49,7 +55,10 @@ public class QuestionService {
             if(question != null && question.getQuestion() != null){
                 message = question.getQuestion();
                 if(!question.isRagMode()){
-                    res = "AI access is closed for now to preserve usage costs NON RAG";//chatClient.prompt(message).call().content();
+                    res = /*"AI access is closed for now to preserve usage costs NON RAG";*/
+                            chatClient.prompt(message)
+                                    .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, String.valueOf(question.getChatId())))
+                                    .call().content();
                     error = save(message, res, ch);
                     if(error.equals("error"))
                         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -62,7 +71,10 @@ public class QuestionService {
                 promptParameters.put("documents", String.join("\n",contentList));
                 Prompt prompt = promptTemplate.create(promptParameters);
                 System.out.println(prompt.toString());
-                res = "AI access is closed for now to preserve usage costs RAG";//chatClient.prompt(prompt).call().content();
+                res = /*"AI access is closed for now to preserve usage costs RAG";*/
+                chatClient.prompt(prompt)
+                        .advisors(advisorSpec -> advisorSpec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, String.valueOf(question.getChatId())))
+                        .call().content();
                 error = save(message, res, ch);
                 if(error.equals("error"))
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
