@@ -39,6 +39,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		http.csrf(customizer -> customizer.disable())
+				.cors(cors -> cors.disable())
 				.authorizeHttpRequests(request -> request
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers("register","login").permitAll()

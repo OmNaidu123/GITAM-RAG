@@ -96,7 +96,7 @@ public class QuestionService {
                 vectorStore.similaritySearch(
                         SearchRequest.builder()
                                 .query(message)
-                                .topK(5)
+                                .topK(2)
                                 .build());
         return similarDocuments.stream().map(Document::getText).toList();
     }
