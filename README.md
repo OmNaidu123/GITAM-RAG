@@ -39,7 +39,7 @@ Retrieval-Augmented Generation (RAG) enhances student learning by providing accu
 
 - **Frontend:** React, Tailwind CSS  
 - **Backend:** Spring, Spring Boot, Hibernate, PostgreSQL  
-- **Tools:** Git, GitHub, Postman API
+- **Tools:** Git, GitHub, Postman API, ChatGPT API
 
 ## Pages Overview
 
